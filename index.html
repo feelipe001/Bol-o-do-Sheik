@@ -8,10 +8,14 @@
         :root { --primary: #ffd700; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        .header { text-align: center; margin-bottom: 20px; }
         
-        .info-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--primary); font-size: 0.9em; }
-        select { width: 100%; padding: 12px; border-radius: 8px; background: #333; color: white; border: none; font-size: 16px; margin-bottom: 10px; }
+        /* Painel de Destaque */
+        .selection-panel { background: #2a2a2a; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
+        .selection-panel h2 { margin: 0 0 15px 0; color: var(--primary); }
+        select { width: 100%; padding: 15px; border-radius: 10px; background: #000; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
+        
+        .info-box { font-size: 0.9em; margin-top: 10px; color: #ccc; }
         
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
         .num { background: #333; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; user-select: none; }
@@ -24,7 +28,7 @@
         
         #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 300px; overflow-y: auto; }
         .jogo-item { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9em; }
-        #contador-container { text-align: center; margin: 10px 0; font-weight: bold; color: var(--primary); }
+        #contador-container { text-align: center; margin: 10px 0; font-weight: bold; color: var(--primary); font-size: 1.2em; }
     </style>
 </head>
 <body>
@@ -34,13 +38,16 @@
         <h1>👑 Bolão do Sheik</h1>
     </div>
 
-    <select id="modalidade" onchange="resetarGrid()">
-        <option value="6,60" data-info="6 números (1 a 60)">Mega-Sena</option>
-        <option value="15,25" data-info="15 números (1 a 25)">Lotofácil</option>
-        <option value="5,80" data-info="5 números (1 a 80)">Quina</option>
-    </select>
-
-    <div id="info-box" class="info-card">Selecione uma modalidade.</div>
+    <!-- Painel de Seleção com Destaque -->
+    <div class="selection-panel">
+        <h2>Escolha a Modalidade</h2>
+        <select id="modalidade" onchange="resetarGrid()">
+            <option value="6,60" data-info="6 números (1 a 60)">Mega-Sena</option>
+            <option value="15,25" data-info="15 números (1 a 25)">Lotofácil</option>
+            <option value="5,80" data-info="5 números (1 a 80)">Quina</option>
+        </select>
+        <div id="info-box" class="info-box">Carregando...</div>
+    </div>
 
     <div id="contador-container">
         Selecionados: <span id="contador">0</span> / <span id="total-necessario">6</span>
@@ -55,7 +62,7 @@
 
     <h3>Seus Jogos (<span id="count">0</span>)</h3>
     <div id="lista">Nenhum jogo selecionado.</div>
-    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">Enviar Bolão para o WhatsApp</button>
+    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 16px;">Enviar Bolão para o WhatsApp</button>
 </div>
 
 <script>
@@ -71,7 +78,7 @@
         
         document.getElementById('total-necessario').innerText = limite;
         document.getElementById('contador').innerText = "0";
-        document.getElementById('info-box').innerText = `Regra: ${select.options[select.selectedIndex].text} exige ${limite} números. Escolha de 1 a ${totalNumeros}.`;
+        document.getElementById('info-box').innerHTML = `<strong>Regra:</strong> Você deve escolher exatamente <b>${limite} números</b> entre 1 e ${totalNumeros}.`;
 
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
@@ -109,11 +116,11 @@
             document.getElementById('contador').innerText = "0";
             document.getElementById('count').innerText = todosJogos.length;
             atualizarLista();
-        } else { alert(`Você precisa selecionar ${limite} números.`); }
+        } else { alert(`Selecione ${limite} números para esta modalidade.`); }
     }
 
     function limparTudo() {
-        if(confirm("Deseja realmente apagar todos os jogos?")) {
+        if(confirm("Deseja realmente apagar todos os jogos selecionados?")) {
             todosJogos = [];
             document.getElementById('lista').innerHTML = "Nenhum jogo selecionado.";
             document.getElementById('count').innerText = "0";
@@ -122,13 +129,13 @@
 
     function atualizarLista() {
         document.getElementById('lista').innerHTML = todosJogos.map((j, i) => 
-            `<div class="jogo-item"><b>${i+1}. ${j.mod}:</b> ${j.nums.join(', ')}</div>`
+            `<div class="jogo-item"><b>J${i+1} (${j.mod}):</b> ${j.nums.join(', ')}</div>`
         ).join('');
     }
 
     function enviarWhatsApp() {
-        if (todosJogos.length === 0) return alert("Adicione pelo menos um jogo!");
-        let msg = "👑 *Bolão do Sheik*%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
+        if (todosJogos.length === 0) return alert("Adicione pelo menos um jogo antes de enviar!");
+        let msg = "👑 *Bolão do Sheik*%0A%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
         window.open(`https://wa.me/5512991599185?text=${msg}`, '_blank');
     }
 
