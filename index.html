@@ -3,34 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolão do Sheik</title>
+    <title>Bolão do Sheik | Gestão de Apostas</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: #fff; padding: 15px; margin: 0; }
+        :root { --primary: #ffd700; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .container { max-width: 500px; margin: auto; }
-        select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; }
-        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
-        .num { background: #333; padding: 10px; text-align: center; border-radius: 5px; cursor: pointer; }
-        .num.selected { background: #ffd700; color: #000; font-weight: bold; }
-        #lista { background: #1e1e1e; padding: 15px; border-radius: 8px; max-height: 300px; overflow-y: auto; }
-        .btn-green { background: #25d366; color: white; font-weight: bold; }
+        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
+        
+        .info-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 20px; border-left: 4px solid var(--primary); }
+        select { width: 100%; padding: 12px; border-radius: 8px; background: #333; color: white; border: none; font-size: 16px; }
+        
+        .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 20px 0; }
+        .num { background: #333; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .num.selected { background: var(--primary); color: #000; font-weight: bold; transform: scale(1.05); }
+        
+        .actions { display: flex; gap: 10px; }
+        button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-add { background: var(--primary); color: #000; }
+        .btn-reset { background: #ff4d4d; color: white; }
+        
+        #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 300px; overflow-y: auto; }
+        .jogo-item { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>👑 Bolão do Sheik</h1>
+    <div class="header">
+        <h1>👑 Bolão do Sheik</h1>
+    </div>
+
     <select id="modalidade" onchange="resetarGrid()">
-        <option value="6,60">Mega-Sena (6 números)</option>
-        <option value="15,25">Lotofácil (15 números)</option>
-        <option value="5,80">Quina (5 números)</option>
+        <option value="6,60" data-info="6 números (1 a 60)">Mega-Sena</option>
+        <option value="15,25" data-info="15 números (1 a 25)">Lotofácil</option>
+        <option value="5,80" data-info="5 números (1 a 80)">Quina</option>
     </select>
 
+    <div id="info-box" class="info-card">Selecione uma modalidade.</div>
+
     <div id="grid" class="grid"></div>
-    <button onclick="adicionarJogo()" class="btn-green">Adicionar Jogo</button>
-    
-    <h3>Jogos (Total: <span id="count">0</span>)</h3>
-    <div id="lista">Nenhum jogo.</div>
-    <button onclick="enviarWhatsApp()" style="background: #007bff; color: white;">Enviar via WhatsApp</button>
+
+    <div class="actions">
+        <button class="btn-add" onclick="adicionarJogo()">+ Adicionar Jogo</button>
+        <button class="btn-reset" onclick="limparTudo()">🗑️ Resetar</button>
+    </div>
+
+    <h3>Seus Jogos (<span id="count">0</span>)</h3>
+    <div id="lista">Nenhum jogo selecionado.</div>
+    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px;">Enviar Bolão para o WhatsApp</button>
 </div>
 
 <script>
@@ -39,8 +59,13 @@
 
     function resetarGrid() {
         selecionados = [];
-        const config = document.getElementById('modalidade').value.split(',');
+        const select = document.getElementById('modalidade');
+        const config = select.value.split(',');
         const totalNumeros = parseInt(config[1]);
+        
+        // Atualiza info
+        document.getElementById('info-box').innerText = `Regra: ${select.options[select.selectedIndex].text} exige ${config[0]} números (Total de 1 a ${totalNumeros}).`;
+
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         for (let i = 1; i <= totalNumeros; i++) {
@@ -64,26 +89,37 @@
     }
 
     function adicionarJogo() {
-        const limite = parseInt(document.getElementById('modalidade').value.split(',')[0]);
+        const select = document.getElementById('modalidade');
+        const limite = parseInt(select.value.split(',')[0]);
         if (selecionados.length === limite) {
-            const mod = document.getElementById('modalidade').options[document.getElementById('modalidade').selectedIndex].text;
-            todosJogos.push({ mod, nums: [...selecionados].sort((a,b) => a-b) });
+            todosJogos.push({ 
+                mod: select.options[select.selectedIndex].text, 
+                nums: [...selecionados].sort((a,b) => a-b) 
+            });
             selecionados = [];
             document.querySelectorAll('.num').forEach(el => el.classList.remove('selected'));
             document.getElementById('count').innerText = todosJogos.length;
             atualizarLista();
-        } else { alert("Selecione " + limite + " números!"); }
+        } else { alert(`Você precisa selecionar ${limite} números.`); }
+    }
+
+    function limparTudo() {
+        if(confirm("Deseja realmente apagar todos os jogos?")) {
+            todosJogos = [];
+            document.getElementById('lista').innerHTML = "Nenhum jogo selecionado.";
+            document.getElementById('count').innerText = "0";
+        }
     }
 
     function atualizarLista() {
         document.getElementById('lista').innerHTML = todosJogos.map((j, i) => 
-            `<div><b>${j.mod}</b>: ${j.nums.join(', ')}</div><hr>`
+            `<div class="jogo-item"><b>${i+1}. ${j.mod}:</b> ${j.nums.join(', ')}</div>`
         ).join('');
     }
 
     function enviarWhatsApp() {
-        if (todosJogos.length === 0) return alert("Adicione jogos!");
-        let msg = "Olá Sheik! Segue meu bolão:%0A" + todosJogos.map(j => `${j.mod}: ${j.nums.join(', ')}`).join('%0A');
+        if (todosJogos.length === 0) return alert("Adicione pelo menos um jogo!");
+        let msg = "👑 *Bolão do Sheik*%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
         window.open(`https://wa.me/5512991599185?text=${msg}`, '_blank');
     }
 
