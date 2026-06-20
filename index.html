@@ -5,28 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão do Sheik | Apostas</title>
     <style>
-        :root { --primary: #ffd700; --bg: #121212; --card: #1e1e1e; --text: #ffffff; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
+        :root { 
+            --primary: #ffd700; 
+            --bg: #121212; 
+            --card: #1e1e1e; 
+            --text: #ffffff;
+            --btn-text: #000;
+        }
+        [data-theme="light"] {
+            --primary: #b8860b;
+            --bg: #f4f4f4;
+            --card: #ffffff;
+            --text: #121212;
+            --btn-text: #fff;
+        }
+
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
         .container { max-width: 500px; margin: auto; }
-        .header { text-align: center; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .selection-panel { background: #2a2a2a; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
+        .selection-panel { background: var(--card); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
         .selection-panel h2 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.4em; }
-        select { width: 100%; padding: 15px; border-radius: 10px; background: #000; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
+        select { width: 100%; padding: 15px; border-radius: 10px; background: #333; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
         
-        .info-box { font-size: 0.9em; margin-top: 10px; color: #ccc; }
+        .info-box { font-size: 0.9em; margin-top: 10px; color: var(--text); opacity: 0.8; }
         
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
-        .num { background: #333; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; user-select: none; }
+        .num { background: #444; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; user-select: none; }
         .num.selected { background: var(--primary); color: #000; font-weight: bold; transform: scale(1.05); }
         
         .actions { display: flex; gap: 10px; margin-top: 15px; }
         button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-add { background: var(--primary); color: #000; }
         .btn-reset { background: #ff4d4d; color: white; }
+        .btn-theme { background: #555; color: white; flex: 0; padding: 10px; }
         
-        #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 300px; overflow-y: auto; }
-        .jogo-item { padding: 8px 0; border-bottom: 1px solid #333; font-size: 0.9em; }
+        #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 300px; overflow-y: auto; border: 1px solid #444; }
+        .jogo-item { padding: 8px 0; border-bottom: 1px solid #444; font-size: 0.9em; }
         #contador-container { text-align: center; margin: 10px 0; font-weight: bold; color: var(--primary); font-size: 1.2em; }
     </style>
 </head>
@@ -35,6 +50,7 @@
 <div class="container">
     <div class="header">
         <h1>👑 Bolão do Sheik</h1>
+        <button class="btn-theme" onclick="toggleTheme()">🌓</button>
     </div>
 
     <div class="selection-panel">
@@ -66,7 +82,7 @@
     </button>
 
     <a href="https://loterias.caixa.gov.br/Paginas/default.aspx" target="_blank" 
-       style="display: block; text-align: center; margin-top: 10px; padding: 15px; background: #fff; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid var(--primary);">
+       style="display: block; text-align: center; margin-top: 10px; padding: 15px; background: #ddd; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid var(--primary);">
         🔍 Conferir Resultados Oficiais
     </a>
 </div>
@@ -74,6 +90,12 @@
 <script>
     let selecionados = [];
     let todosJogos = [];
+
+    function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute('data-theme');
+        body.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+    }
 
     function resetarGrid() {
         selecionados = [];
@@ -84,7 +106,7 @@
         
         document.getElementById('total-necessario').innerText = limite;
         document.getElementById('contador').innerText = "0";
-        document.getElementById('info-box').innerHTML = `<strong>Regra:</strong> Você deve escolher exatamente <b>${limite} números</b> entre 1 e ${totalNumeros}.`;
+        document.getElementById('info-box').innerHTML = `<strong>Regra:</strong> Escolha <b>${limite} números</b> entre 1 e ${totalNumeros}.`;
 
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
