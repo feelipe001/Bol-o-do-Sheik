@@ -10,9 +10,8 @@
         .container { max-width: 500px; margin: auto; }
         .header { text-align: center; margin-bottom: 20px; }
         
-        /* Painel de Destaque */
         .selection-panel { background: #2a2a2a; padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
-        .selection-panel h2 { margin: 0 0 15px 0; color: var(--primary); }
+        .selection-panel h2 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.4em; }
         select { width: 100%; padding: 15px; border-radius: 10px; background: #000; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
         
         .info-box { font-size: 0.9em; margin-top: 10px; color: #ccc; }
@@ -38,7 +37,6 @@
         <h1>👑 Bolão do Sheik</h1>
     </div>
 
-    <!-- Painel de Seleção com Destaque -->
     <div class="selection-panel">
         <h2>Escolha a Modalidade</h2>
         <select id="modalidade" onchange="resetarGrid()">
@@ -62,7 +60,15 @@
 
     <h3>Seus Jogos (<span id="count">0</span>)</h3>
     <div id="lista">Nenhum jogo selecionado.</div>
-    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 16px;">Enviar Bolão para o WhatsApp</button>
+    
+    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 20px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 16px;">
+        Enviar Bolão para o WhatsApp
+    </button>
+
+    <a href="https://loterias.caixa.gov.br/Paginas/default.aspx" target="_blank" 
+       style="display: block; text-align: center; margin-top: 10px; padding: 15px; background: #fff; color: #000; text-decoration: none; border-radius: 8px; font-weight: bold; border: 1px solid var(--primary);">
+        🔍 Conferir Resultados Oficiais
+    </a>
 </div>
 
 <script>
