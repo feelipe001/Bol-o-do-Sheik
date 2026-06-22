@@ -63,6 +63,15 @@
     <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; font-size: 16px;">
         Enviar Bolão via WhatsApp
     </button>
+
+    <!-- Anúncio de Afiliado -->
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="SEU_LINK_DE_AFILIADO_AQUI" target="_blank">
+            <img src="https://res.cloudinary.com/dxpygpngo/image/upload/v1782150585/Design_sem_nome_hoqplk.png" 
+                 alt="Anúncio Bolão do Sheik" 
+                 style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        </a>
+    </div>
 </div>
 
 <script>
@@ -126,7 +135,7 @@
     function enviarWhatsApp() {
         if (todosJogos.length === 0) return alert("Adicione jogos primeiro!");
         let msg = "👑 *Bolão do Sheik*%0A%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
-        window.open('https://wa.me/5512991599185?text=' + msg, '_blank');
+        window.open('https://wa.me/5512991599185?text=' + encodeURIComponent(msg), '_blank');
     }
 
     resetarGrid();
