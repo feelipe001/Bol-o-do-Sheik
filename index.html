@@ -12,14 +12,11 @@
         .container { max-width: 500px; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .menu-btn { cursor: pointer; font-size: 24px; }
-        .side-menu { height: 100%; width: 0; position: fixed; z-index: 100; top: 0; left: 0; background: #222; overflow-x: hidden; transition: 0.3s; padding-top: 60px; color: white; }
-        .side-menu a { color: white; text-decoration: none; display: block; padding: 15px; }
-        .close-btn { position: absolute; top: 20px; right: 25px; font-size: 30px; cursor: pointer; }
-        .highlight-box { background: var(--primary); color: black; margin: 10px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
-
-        .selection-panel { background: var(--card); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
+        .panel { background: var(--card); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 15px; }
         select { width: 100%; padding: 15px; border-radius: 10px; background: #333; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
+        
+        .info-text { font-size: 14px; margin-top: 10px; color: var(--primary); text-align: center; }
+        .counter { text-align: center; font-size: 18px; font-weight: bold; margin: 10px 0; }
         
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
         .num { background: #444; padding: 12px; text-align: center; border-radius: 8px; cursor: pointer; transition: 0.2s; user-select: none; }
@@ -30,37 +27,29 @@
         .btn-add { background: var(--primary); color: #000; }
         .btn-reset { background: #ff4d4d; color: white; }
         
-        #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 200px; overflow-y: auto; border: 1px solid #444; }
+        #lista { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 20px; max-height: 250px; overflow-y: auto; font-size: 14px; }
     </style>
 </head>
 <body>
 
-<div id="sideMenu" class="side-menu">
-    <span class="close-btn" onclick="closeMenu()">&times;</span>
-    <div class="highlight-box"><a href="#">Entrar na Comunidade</a></div>
-    <div style="padding: 20px;">
-        <h3>Como Jogar</h3>
-        <p style="font-size: 14px;">Escolha a modalidade, selecione os números e adicione ao seu bolão.</p>
-        <h3>Responsabilidade</h3>
-        <p style="font-size: 14px;">Aposte com consciência. O Bolão do Sheik é apenas para organização de palpites.</p>
-    </div>
-</div>
-
 <div class="container">
     <div class="header">
-        <div class="menu-btn" onclick="openMenu()">☰</div>
         <h1>👑 Bolão do Sheik</h1>
         <button onclick="toggleTheme()" style="background:none; border:none; font-size:24px; cursor:pointer;">🌓</button>
     </div>
 
-    <div class="selection-panel">
+    <div class="panel">
         <select id="modalidade" onchange="resetarGrid()">
-            <!-- Formato: "quantos_escolher,total_no_volante" -->
-            <option value="6,60">Mega-Sena (6 de 60)</option>
-            <option value="15,25">Lotofácil (15 de 25)</option>
-            <option value="5,80">Quina (5 de 80)</option>
-            <option value="5,80">Quina de São João (5 de 80)</option>
+            <option value="6,60" data-regra="Selecione 6 números entre 1 e 60.">Mega-Sena</option>
+            <option value="15,25" data-regra="Selecione 15 números entre 1 e 25.">Lotofácil</option>
+            <option value="5,80" data-regra="Selecione 5 números entre 1 e 80.">Quina</option>
+            <option value="5,80" data-regra="Selecione 5 números entre 1 e 80.">Quina de São João</option>
         </select>
+        <div id="regra-text" class="info-text">Selecione uma modalidade</div>
+    </div>
+
+    <div class="counter">
+        Selecionados: <span id="contador">0</span> / <span id="limite">0</span>
     </div>
 
     <div id="grid" class="grid"></div>
@@ -71,12 +60,13 @@
     </div>
 
     <div id="lista">Nenhum jogo selecionado.</div>
-    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; font-size: 16px;">Enviar para o WhatsApp</button>
+    
+    <button onclick="enviarWhatsApp()" style="background: #25d366; color: white; width: 100%; margin-top: 15px; padding: 15px; border-radius: 8px; border: none; font-weight: bold; font-size: 16px;">
+        Enviar Bolão via WhatsApp
+    </button>
 </div>
 
 <script>
-    function openMenu() { document.getElementById("sideMenu").style.width = "250px"; }
-    function closeMenu() { document.getElementById("sideMenu").style.width = "0"; }
     function toggleTheme() { document.body.setAttribute('data-theme', document.body.getAttribute('data-theme') === 'light' ? 'dark' : 'light'); }
     
     let selecionados = [];
@@ -84,9 +74,15 @@
 
     function resetarGrid() {
         selecionados = [];
-        const config = document.getElementById('modalidade').value.split(',');
+        const select = document.getElementById('modalidade');
+        const config = select.value.split(',');
         const limite = parseInt(config[0]);
         const total = parseInt(config[1]);
+        
+        document.getElementById('limite').innerText = limite;
+        document.getElementById('contador').innerText = "0";
+        document.getElementById('regra-text').innerText = select.options[select.selectedIndex].dataset.regra;
+
         const grid = document.getElementById('grid');
         grid.innerHTML = '';
         for (let i = 1; i <= total; i++) {
@@ -101,6 +97,7 @@
                     selecionados.push(i);
                     this.classList.add('selected');
                 }
+                document.getElementById('contador').innerText = selecionados.length;
             };
             grid.appendChild(b);
         }
@@ -115,15 +112,21 @@
             todosJogos.push({mod, nums: [...selecionados].sort((a,b) => a-b)});
             selecionados = [];
             document.querySelectorAll('.num').forEach(el => el.classList.remove('selected'));
-            document.getElementById('lista').innerHTML = todosJogos.map((j, i) => `<div>J${i+1} (${j.mod}): ${j.nums.join(', ')}</div>`).join('');
-        } else { alert("Para " + mod + ", você deve selecionar " + limite + " números!"); }
+            document.getElementById('contador').innerText = "0";
+            document.getElementById('lista').innerHTML = todosJogos.map((j, i) => `<div><b>${i+1}. ${j.mod}:</b> ${j.nums.join(', ')}</div>`).join('<hr>');
+        } else { alert("Você precisa selecionar " + limite + " números!"); }
     }
 
-    function limparTudo() { todosJogos = []; document.getElementById('lista').innerHTML = "Nenhum jogo selecionado."; }
-    
+    function limparTudo() { 
+        if(confirm("Deseja apagar todos os jogos?")) {
+            todosJogos = []; 
+            document.getElementById('lista').innerHTML = "Nenhum jogo selecionado."; 
+        }
+    }
+
     function enviarWhatsApp() {
-        if (todosJogos.length === 0) return alert("Selecione algum jogo primeiro!");
-        let msg = "👑 *Bolão do Sheik*%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
+        if (todosJogos.length === 0) return alert("Adicione jogos primeiro!");
+        let msg = "👑 *Bolão do Sheik*%0A%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
         window.open('https://wa.me/5512991599185?text=' + msg, '_blank');
     }
 
