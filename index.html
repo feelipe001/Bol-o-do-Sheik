@@ -14,12 +14,11 @@
         
         .menu-btn { cursor: pointer; font-size: 24px; }
         .side-menu { height: 100%; width: 0; position: fixed; z-index: 100; top: 0; left: 0; background: #222; overflow-x: hidden; transition: 0.3s; padding-top: 60px; color: white; }
-        .side-menu a { color: white; text-decoration: none; }
+        .side-menu a { color: white; text-decoration: none; display: block; padding: 15px; }
         .close-btn { position: absolute; top: 20px; right: 25px; font-size: 30px; cursor: pointer; }
         .highlight-box { background: var(--primary); color: black; margin: 10px; padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; }
 
         .selection-panel { background: var(--card); padding: 20px; border-radius: 15px; border: 2px solid var(--primary); margin-bottom: 20px; text-align: center; }
-        .selection-panel h2 { margin: 0 0 15px 0; color: var(--primary); font-size: 1.4em; }
         select { width: 100%; padding: 15px; border-radius: 10px; background: #333; color: var(--primary); border: 1px solid var(--primary); font-size: 18px; font-weight: bold; cursor: pointer; }
         
         .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 15px 0; }
@@ -41,9 +40,9 @@
     <div class="highlight-box"><a href="#">Entrar na Comunidade</a></div>
     <div style="padding: 20px;">
         <h3>Como Jogar</h3>
-        <p style="font-size: 14px;">Escolha sua modalidade, selecione os números e clique em adicionar jogo.</p>
+        <p style="font-size: 14px;">Escolha a modalidade, selecione os números e adicione ao seu bolão.</p>
         <h3>Responsabilidade</h3>
-        <p style="font-size: 14px;">Lembre-se: loteria é um jogo de sorte. Jogue com responsabilidade e apenas o que estiver disposto a investir.</p>
+        <p style="font-size: 14px;">Aposte com consciência. O Bolão do Sheik é apenas para organização de palpites.</p>
     </div>
 </div>
 
@@ -55,12 +54,12 @@
     </div>
 
     <div class="selection-panel">
-        <h2>Escolha a Modalidade</h2>
         <select id="modalidade" onchange="resetarGrid()">
-            <option value="6,60">Mega-Sena</option>
-            <option value="15,25">Lotofácil</option>
-            <option value="5,80">Quina</option>
-            <option value="5,80">Quina de São João</option>
+            <!-- Formato: "quantos_escolher,total_no_volante" -->
+            <option value="6,60">Mega-Sena (6 de 60)</option>
+            <option value="15,25">Lotofácil (15 de 25)</option>
+            <option value="5,80">Quina (5 de 80)</option>
+            <option value="5,80">Quina de São João (5 de 80)</option>
         </select>
     </div>
 
@@ -111,15 +110,17 @@
         const select = document.getElementById('modalidade');
         const mod = select.options[select.selectedIndex].text;
         const limite = parseInt(select.value.split(',')[0]);
+        
         if (selecionados.length === limite) {
             todosJogos.push({mod, nums: [...selecionados].sort((a,b) => a-b)});
             selecionados = [];
             document.querySelectorAll('.num').forEach(el => el.classList.remove('selected'));
             document.getElementById('lista').innerHTML = todosJogos.map((j, i) => `<div>J${i+1} (${j.mod}): ${j.nums.join(', ')}</div>`).join('');
-        } else { alert("Selecione " + limite + " números!"); }
+        } else { alert("Para " + mod + ", você deve selecionar " + limite + " números!"); }
     }
 
     function limparTudo() { todosJogos = []; document.getElementById('lista').innerHTML = "Nenhum jogo selecionado."; }
+    
     function enviarWhatsApp() {
         if (todosJogos.length === 0) return alert("Selecione algum jogo primeiro!");
         let msg = "👑 *Bolão do Sheik*%0A" + todosJogos.map((j, i) => `J${i+1} (${j.mod}): ${j.nums.join(', ')}`).join('%0A');
